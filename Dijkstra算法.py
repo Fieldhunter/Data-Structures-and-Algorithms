@@ -125,11 +125,3 @@ class Adjacency_list():			#邻接表
 				print(result)
 			else:
 				print("No way from start to end")
-a=Adjacency_list()
-a.add_data("a","b",130)
-a.add_data("b","c",80)
-a.add_data("c","f",50)
-a.add_data("a","d",30)
-a.add_data("d","e",50)
-a.add_data("e","f",150)
-a.dijkstra("a","f")
