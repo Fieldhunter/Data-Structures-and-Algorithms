@@ -1,75 +1,97 @@
+import functools
+
+
+# 用于两种图表示方法加数据的预处理操作，装饰器函数
+def start_end_process(func):
+	@functools.wraps(func)
+	def process(self, start, end):
+		start, end = str(start), str(end)
+		if start not in self.__mapping:
+			self.__mapping.append(start)
+			start_num = len(self.__mapping) - 1
+		else:
+			start_num = self.__mapping.index(start)
+		if end not in self.__mapping:
+			self.__mapping.append(end)
+			end_num = len(self.__mapping) - 1
+		else:
+			end_num = self.__mapping.index(end)
+
+		func(self, start_num, end_num)
+	return process
+
+
+"""
+	用于检查访问图基本信息的code是否正确，装饰器函数
+	简单加入code目的是防止图的信息被恶意篡改，并留个接口给开发人员
+"""
+def check_code(func):
+	@functools.wraps(func)
+	def check(self, code):
+		if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+			raise Exception('code is wrong!')
+		result = func(self, code)
+		return result
+
+	return check
+
+
 # 基于有向图
 class Adjacency_matrix():
 	# 初始化为一个10*10的矩阵,mapping用来记录节点与节点序数的对应关系
 	def __init__(self):
-		self.mapping = []
-		self.size = 10
-		self.data = []
+		self.__mapping = []
+		self.__size = 10
+		self.__data = []
 
 		for _ in range(10):
 			new_list = []
 			for _ in range(10):
 				new_list.append(0)
-			self.data.append(new_list)
+			self.__data.append(new_list)
 
-	def add_data(self, start, end):
-		start, end = str(start), str(end)
-		if start not in self.mapping:
-			self.mapping.append(start)
-			start_num = len(self.mapping) - 1
-		else:
-			start_num = self.mapping.index(start)
-		if end not in self.mapping:
-			self.mapping.append(end)
-			end_num = len(self.mapping) - 1
-		else:
-			end_num = self.mapping.index(end)
-		self.data[start_num][end_num] = 1
+	@start_end_process
+	def add_data(self, start_num, end_num):
+		self.__data[start_num][end_num] = 1
 
 		# 如果节点个数接近矩阵的尺寸，则对矩阵进行扩容
-		if self.size - len(self.mapping) < 2:
-			for i in self.data:
+		if self.__size - len(self.__mapping) < 2:
+			for i in self.__data:
 				for _ in range(10):
 					i.append(0)
 			for _ in range(10):
 				new_list = []
 				for _ in range(10):
 					new_list.append(0)
-				self.data.append(new_list)
-			self.size += 10
+				self.__data.append(new_list)
+			self.__size += 10
+
+	@check_code
+	def return_basic_information(self, code):
+		return self.__data, self.__mapping, self.__size
 
 
 # 邻接表
 class Adjacency_list():
 	# mapping用来记录节点与节点序数的对应关系,data中用节点序数来表示指向关系
 	def __init__(self):
-		self.data = {}
-		self.mapping = []
+		self.__data = {}
+		self.__mapping = []
 
-	def add_data(self, start, end):
-		start, end = str(start), str(end)
-		if start not in self.mapping:
-			self.mapping.append(start)
-			start_num = len(self.mapping) - 1
-		else:
-			start_num = self.mapping.index(start)
-		if end not in self.mapping:
-			self.mapping.append(end)
-			end_num = len(self.mapping) - 1
-		else:
-			end_num = self.mapping.index(end)
-		if not self.data.get(start_num, False):
+	@start_end_process
+	def add_data(self, start_num, end_num):
+		if not self.__data.get(start_num, False):
 			new_list = [end_num]
-			self.data[start_num] = new_list
+			self.__data[start_num] = new_list
 		else:
-			if end_num in self.data[start_num]:
+			if end_num in self.__data[start_num]:
 				print("data is in list")
 			else:
-				self.data[start_num].append(end_num)
+				self.__data[start_num].append(end_num)
 
 	def BFS(self, start, end):
 		start, end = str(start), str(end)
-		if start not in self.mapping or end not in self.mapping:
+		if start not in self.__mapping or end not in self.__mapping:
 			print("No data in need")
 		else:
 			"""
@@ -77,17 +99,17 @@ class Adjacency_list():
 				visited数组用来记录已经被访问的顶点.用来避免顶点被重复访问
 				prev数组用来记录搜素路径
 			"""
-			start_num, end_num = self.mapping.index(start), self.mapping.index(end)
+			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
 			queue = [start_num]
-			visited = [False] * len(self.mapping)
-			prev = [-1] * len(self.mapping)
+			visited = [False] * len(self.__mapping)
+			prev = [-1] * len(self.__mapping)
 			find = False
 			while len(queue) > 0 and find == False:
 				focus = queue[0]
 				del queue[0]
 				visited[focus] = True
-				if self.data.get(focus, False):
-					for i in self.data[focus]:
+				if self.__data.get(focus, False):
+					for i in self.__data[focus]:
 						if visited[i] != True:
 							queue.append(i)
 							prev[i] = focus
@@ -111,8 +133,8 @@ class Adjacency_list():
 			if find == True:
 				return visited, prev, find
 
-			if self.data.get(pointer, False):
-				for i in self.data[pointer]:
+			if self.__data.get(pointer, False):
+				for i in self.__data[pointer]:
 					if find:
 						break
 					if visited[i] != True:
@@ -126,13 +148,13 @@ class Adjacency_list():
 			return visited, prev, find
 
 		start, end = str(start), str(end)
-		if start not in self.mapping or end not in self.mapping:
+		if start not in self.__mapping or end not in self.__mapping:
 			print("No data in need")
 		else:
 			# visited，prev数组作用与BFS相同
-			start_num, end_num = self.mapping.index(start), self.mapping.index(end)
-			visited = [False] * len(self.mapping)
-			prev = [-1] * len(self.mapping)
+			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
+			visited = [False] * len(self.__mapping)
+			prev = [-1] * len(self.__mapping)
 			find = False
 			pointer = start_num
 			visited[start_num] = True
@@ -147,3 +169,7 @@ class Adjacency_list():
 				print(prev_way)
 			else:
 				print("No way from start to end")
+
+	@check_code
+	def return_basic_information(self, code):
+		return self.__data, self.__mapping

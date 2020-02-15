@@ -1,11 +1,14 @@
-class Node():
+import functools
+
+
+class Dijkstra_Node():
 	# value用来存储该节点与指向节点之间的权值
 	def __init__(self, element):
 		self.data = element
 		self.value = []
 
 
-#实现一个小顶堆,用于后续的dijkstra的优先级队列
+# 实现一个小顶堆,用于后续的dijkstra的优先级队列
 class Heap():
 	def __init__(self):
 		self.data = [None]
@@ -34,12 +37,12 @@ class Heap():
 		top_element = self.data[-1][0]
 		del self.data[-1]
 		num -= 1
-		self.heap_up_down(self.data, num)
+		self.__heap_up_down(self.data, num)
 
 		return top_element
 
 	# 从上往下进行堆化
-	def heap_up_down(self, data, num, index=1):
+	def __heap_up_down(self, data, num, index=1):
 		while (2*index) <= num:
 
 			# 两个子节点都存在
@@ -73,50 +76,50 @@ class Heap():
 # 邻接表
 class Adjacency_list():
 	"""
-		mapping用来记录及节点的值与节点序数的对应关系
-		data中用节点序数来表示指向关系
-		node_mapping用来存储节点与节点序数的对应关系
+		__mapping用来记录及节点的值与节点序数的对应关系
+		__data中用节点序数来表示指向关系
+		__node_mapping用来存储节点与节点序数的对应关系
 	"""
 	def __init__(self):
-		self.data = {}
-		self.node_mapping = []
-		self.mapping = []
+		self.__data = {}
+		self.__node_mapping = []
+		self.__mapping = []
 
 	def add_data(self, start, end, weight):
 		start, end = str(start), str(end)
-		if start not in self.mapping:
-			new_node = Node(start)
-			self.node_mapping.append(new_node)
-			self.mapping.append(start)
-			start_num = len(self.mapping) - 1
+		if start not in self.__mapping:
+			new_node = Dijkstra_Node(start)
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(start)
+			start_num = len(self.__mapping) - 1
 		else:
-			start_num = self.mapping.index(start)
-		if end not in self.mapping:
-			new_node = Node(end)
-			self.node_mapping.append(new_node)
-			self.mapping.append(end)
-			end_num = len(self.mapping) - 1
+			start_num = self.__mapping.index(start)
+		if end not in self.__mapping:
+			new_node = Dijkstra_Node(end)
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(end)
+			end_num = len(self.__mapping) - 1
 		else:
-			end_num = self.mapping.index(end)
+			end_num = self.__mapping.index(end)
 
-		if not self.data.get(start_num, False):
+		if not self.__data.get(start_num, False):
 			new_list = [end_num]
-			self.data[start_num] = new_list
-			self.node_mapping[start_num].value.append(weight)
+			self.__data[start_num] = new_list
+			self.__node_mapping[start_num].value.append(weight)
 		else:
 			# 如果起始节点与结束节点已经有对应关系了，那么就更新他们两个的之间的权值
-			if end_num in self.data[start_num]:
-				pointer = self.data[start_num].index(end_num)
-				self.node_mapping[start_num].value[pointer] = weight
+			if end_num in self.__data[start_num]:
+				pointer = self.__data[start_num].index(end_num)
+				self.__node_mapping[start_num].value[pointer] = weight
 			else:
-				self.data[start_num].append(end_num)
-				self.node_mapping[start_num].value.append(weight)
+				self.__data[start_num].append(end_num)
+				self.__node_mapping[start_num].value.append(weight)
 
 	# Dijkstra算法
 	def dijkstra(self, start, end):
 		start,end = str(start),str(end)
 
-		if start not in self.mapping or end not in self.mapping:
+		if start not in self.__mapping or end not in self.__mapping:
 			print("No target data in map")
 		else:
 			"""
@@ -126,10 +129,10 @@ class Adjacency_list():
 					inqueue数组是为了避免将一个顶点多次添加到优先级队列中
 					level_queue为优先级队列
 			"""
-			start_num, end_num = self.mapping.index(start), self.mapping.index(end)
-			vertexes = [None] * len(self.mapping)
-			predecessor = [-1] * len(self.mapping)
-			inqueue = [False] * len(self.mapping)
+			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
+			vertexes = [None] * len(self.__mapping)
+			predecessor = [-1] * len(self.__mapping)
+			inqueue = [False] * len(self.__mapping)
 			level_queue = Heap()
 			find = False
 
@@ -147,11 +150,11 @@ class Adjacency_list():
 					find = True
 					break
 
-				if self.data.get(minvertex, False):
+				if self.__data.get(minvertex, False):
 					# 遍历minvertex的出度节点
-					for num, i in enumerate(self.data.get(minvertex)):
+					for num, i in enumerate(self.__data.get(minvertex)):
 						if vertexes[i] == None or vertexes[minvertex] + \
-							self.node_mapping[minvertex].value[num] < vertexes[i]:
+							self.__node_mapping[minvertex].value[num] < vertexes[i]:
 
 							"""
 								如果minVertex的dist值加上两节点之间的权重小于该出度节点的dist值
@@ -159,7 +162,7 @@ class Adjacency_list():
 								同时前驱节点进行更新
 							"""
 							vertexes[i] = vertexes[minvertex] + \
-								self.node_mapping[minvertex].value[num]
+								self.__node_mapping[minvertex].value[num]
 							predecessor[i] = minvertex
 
 							# 判断该出度节点是否之前已经加入到优先级队列中，如果没有，则加入
@@ -170,12 +173,34 @@ class Adjacency_list():
 			# 找到路径，则遍历predecess数组输出
 			if find:
 				pointer = predecessor[end_num]
-				result = [self.mapping[end_num]]
+				result = [self.__mapping[end_num]]
 
 				while pointer != -1:
-					result.insert(0, self.mapping[pointer])
+					result.insert(0, self.__mapping[pointer])
 					pointer = predecessor[pointer]
 
 				print(result)
 			else:
 				print("No way from start to end")
+
+	"""
+		用于检查访问类基本信息的code是否正确，装饰器函数
+		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+	"""
+	def __check_code(func):
+		@functools.wraps(func)
+		def check(self, code):
+			if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+				raise Exception('code is wrong!')
+			result = func(self, code)
+			return result
+
+		return check
+
+	@__check_code
+	def return_data(self, code):
+		return self.__data
+
+	@__check_code
+	def return_mapping(self, code):
+		return self.__mapping, self.__node_mapping

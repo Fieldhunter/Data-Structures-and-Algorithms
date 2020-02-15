@@ -1,28 +1,31 @@
 # 实现一个大顶堆
 class Heap():
 	def __init__(self):
-		self.data = [None]
+		self.__data = [None]
 
 	def add_data(self, element):
-		self.data.append(element)
-		index = len(self.data) - 1
+		self.__data.append(element)
+		index = len(self.__data) - 1
 		while index > 1:
-			if self.data[index] > self.data[index//2]:
-				self.data[index], self.data[index//2] = \
-					self.data[index//2], self.data[index]
+			if self.__data[index] > self.__data[index//2]:
+				self.__data[index], self.__data[index//2] = \
+					self.__data[index//2], self.__data[index]
 				index //= 2
 			else:
 				break
 
 	def del_top_element(self):
-		num = len(self.data) - 1
+		num = len(self.__data) - 1
 		if num == 0:
 			print("No data in Heap")
 		else:
-			self.data[num], self.data[1] = self.data[1], self.data[num]
-			del self.data[-1]
+			self.__data[num], self.__data[1] = self.__data[1], self.__data[num]
+			del self.__data[-1]
 			num -= 1
-			heap_up_down(self.data,num)
+			heap_up_down(self.__data,num)
+
+	def return_top_data(self):
+		return self.__data[1]
 
 
 # 从上往下进行堆化

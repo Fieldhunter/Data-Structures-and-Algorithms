@@ -1,3 +1,6 @@
+import functools
+
+
 class Node():
 	# in_degree表示入度数，out_degree表示出度数
 	def __init__(self,element):
@@ -9,49 +12,49 @@ class Node():
 # 邻接表
 class Adjacency_list():
 	"""
-		node_mapping用来记录节点与节点序数的对应关系
-		mapping用来记录节点数据与节点序数的对应关系
-		data中用节点序数来表示指向关系
+		__node_mapping用来记录节点与节点序数的对应关系
+		__mapping用来记录节点数据与节点序数的对应关系
+		__data中用节点序数来表示指向关系
 	"""
-	def __init__(self):			
-		self.data = {}			
-		self.node_mapping = []	
-		self.mapping = []
+	def __init__(self):
+		self.__data = {}
+		self.__node_mapping = []
+		self.__mapping = []
 
 	def add_data(self, start, end):
 		start, end = str(start), str(end)
-		if start not in self.mapping:
+		if start not in self.__mapping:
 			new_node = Node(start)
-			self.node_mapping.append(new_node)
-			self.mapping.append(start)
-			start_num = len(self.mapping) - 1
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(start)
+			start_num = len(self.__mapping) - 1
 		else:
-			start_num = self.mapping.index(start)
-		if end not in self.mapping:
+			start_num = self.__mapping.index(start)
+		if end not in self.__mapping:
 			new_node = Node(end)
-			self.node_mapping.append(new_node)
-			self.mapping.append(end)
-			end_num = len(self.mapping) - 1
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(end)
+			end_num = len(self.__mapping) - 1
 		else:
-			end_num = self.mapping.index(end)
+			end_num = self.__mapping.index(end)
 
-		if not self.data.get(start_num, False):
+		if not self.__data.get(start_num, False):
 			new_list = [end_num]
-			self.data[start_num] = new_list
-			self.node_mapping[start_num].out_degree += 1
-			self.node_mapping[end_num].in_degree += 1
+			self.__data[start_num] = new_list
+			self.__node_mapping[start_num].out_degree += 1
+			self.__node_mapping[end_num].in_degree += 1
 		else:
-			if end_num in self.data[start_num]:
+			if end_num in self.__data[start_num]:
 				print("data is in list")
 			else:
-				self.data[start_num].append(end_num)
-				self.node_mapping[start_num].out_degree += 1
-				self.node_mapping[end_num].in_degree += 1
+				self.__data[start_num].append(end_num)
+				self.__node_mapping[start_num].out_degree += 1
+				self.__node_mapping[end_num].in_degree += 1
 
 	def kahn(self):
 		# in_list记录每个节点的入度数,queue是一个队列，用来存储待处理的节点下标,result用来存储结果顺序
 		in_list = []
-		for i in self.node_mapping:
+		for i in self.__node_mapping:
 			in_list.append(i.in_degree)
 		quene = []
 		result = []
@@ -67,9 +70,9 @@ class Adjacency_list():
 		while len(quene) != 0:
 			pointer = quene[0]
 			del quene[0]
-			result.append(self.mapping[pointer])
-			if self.data.get(pointer, False):
-				for i in self.data.get(pointer):
+			result.append(self.__mapping[pointer])
+			if self.__data.get(pointer, False):
+				for i in self.__data.get(pointer):
 					in_list[i] -= 1
 
 					# 入度为0的节点设置为None
@@ -89,7 +92,7 @@ class Adjacency_list():
 			count+=1
 
 			# 如果函数执行次数超过了总的节点数，说明肯定存在环
-			if count > len(self.mapping):
+			if count > len(self.__mapping):
 				return False
 
 			if inverse_adjacency_list.get(num, False):
@@ -100,7 +103,7 @@ class Adjacency_list():
 				# 该节点如果没有输出过，则输出
 				if check_list[num] != True:
 					check_list[num] = True
-					result.append(self.mapping[num])
+					result.append(self.__mapping[num])
 
 			return result
 
@@ -110,18 +113,18 @@ class Adjacency_list():
 			result用来存储结果顺序
 			count用来记录循环输出函数的执行次数
 		"""
-		check_list = [False] * len(self.mapping)
+		check_list = [False] * len(self.__mapping)
 		out_list = []
 		result = []
 		count = 0
-		for i in self.node_mapping:
+		for i in self.__node_mapping:
 			out_list.append(i.out_degree)
 
 		# 构建逆邻接表
 		inverse_adjacency_list = {}
-		for i in self.data:
-			if self.data.get(i, False):
-				for j in self.data.get(i):
+		for i in self.__data:
+			if self.__data.get(i, False):
+				for j in self.__data.get(i):
 					if inverse_adjacency_list.get(j, False):
 						inverse_adjacency_list[j].append(i)
 					else:
@@ -138,3 +141,25 @@ class Adjacency_list():
 				print(result)
 		except:
 			print("A ring in map")
+
+	"""
+		用于检查访问类基本信息的code是否正确，装饰器函数
+		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+	"""
+	def __check_code(func):
+		@functools.wraps(func)
+		def check(self, code):
+			if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+				raise Exception('code is wrong!')
+			result = func(self, code)
+			return result
+
+		return check
+
+	@__check_code
+	def return_data(self, code):
+		return self.__data
+
+	@__check_code
+	def return_mapping(self, code):
+		return self.__mapping, self.__node_mapping

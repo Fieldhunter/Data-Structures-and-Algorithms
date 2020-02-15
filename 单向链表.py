@@ -1,4 +1,7 @@
-class Node():
+import functools
+
+
+class Link_Node():
 	# 存储的数据为数字
 	def __init__(self, data):
 		self.data = data
@@ -7,18 +10,18 @@ class Node():
 
 class Linkedlist():
 	def __init__(self):
-		self.head = None
-		self.num = 0
+		self.__head = None
+		self.__num = 0
 
 	# num是要加入的数字,pos_num代表在哪个数据后面加入,不填默认在头结点
-	def add_data(self, num, pos_num=None):		
-		new_node = Node(num)
-		if self.head == None or pos_num == None:
-			new_node.next = self.head
-			self.head = new_node
-			self.num += 1
+	def add_data(self, num, pos_num=None):
+		new_node = Link_Node(num)
+		if self.__head == None or pos_num == None:
+			new_node.next = self.__head
+			self.__head = new_node
+			self.__num += 1
 		else:
-			data_1 = self.head
+			data_1 = self.__head
 			finder = False
 			while data_1.data != pos_num and data_1 != None:
 				data_1 = data_1.next
@@ -30,11 +33,11 @@ class Linkedlist():
 			else:
 				new_node.next = data_1.next
 				data_1.next = new_node
-				self.num += 1
+				self.__num += 1
 
 	def del_data(self, num):
 		data_1 = None
-		data_2 = self.head
+		data_2 = self.__head
 		finder = False
 
 		while not data_2 == None:
@@ -42,12 +45,12 @@ class Linkedlist():
 				finder = True
 				if data_1 == None:
 					if data_2.next == None:
-						self.head = None
+						self.__head = None
 					else:
-						self.head = data_2.next
+						self.__head = data_2.next
 				else:
 					data_1.next = data_2.next
-				self.num -= 1
+				self.__num -= 1
 				data_2.next = data_2.data = None
 				break
 			else:
@@ -60,7 +63,7 @@ class Linkedlist():
 			print("No data")
 
 	def find_data(self, num):
-		data_list = self.head
+		data_list = self.__head
 		pos = 0
 		while not data_list == None:
 			pos += 1
@@ -72,7 +75,7 @@ class Linkedlist():
 		print(pos)
 
 	def print_all_data(self):
-		data_list = self.head
+		data_list = self.__head
 		while data_list != None:
 			print(data_list.data, end=" ")
 			data_list = data_list.next
@@ -81,8 +84,8 @@ class Linkedlist():
 	def reversal(self):
 		try:
 			data_1 = None
-			data_2 = self.head
-			data_3 = self.head.next
+			data_2 = self.__head
+			data_3 = self.__head.next
 
 			while not data_3 == None:
 				data_2.next = data_1
@@ -90,19 +93,19 @@ class Linkedlist():
 				data_2 = data_3
 				data_3 = data_3.next
 			data_2.next = data_1 
-			self.head = data_2
+			self.__head = data_2
 		except:
 			pass
 
 	def find_middle_data(self):
-		middle_pos = self.num // 2
-		data_list = self.head
+		middle_pos = self.__num // 2
+		data_list = self.__head
 		pos = 1
 
 		while pos < middle_pos:
 			pos += 1
 			data_list = data_list.next
-		if middle_pos % 2 != 0 and self.num != 1:
+		if middle_pos % 2 != 0 and self.__num != 1:
 			data_list = data_list.next
 
 		try:
@@ -112,8 +115,8 @@ class Linkedlist():
 
 	def check_ring(self):
 		result = False
-		fast_point = self.head
-		slow_point = self.head
+		fast_point = self.__head
+		slow_point = self.__head
 
 		while fast_point != None and slow_point != None:
 			if fast_point.next == slow_point:
@@ -127,33 +130,57 @@ class Linkedlist():
 					slow_point = slow_point.next
 
 		if result == True:
-			print("has circle")
+			print("Find circle")
 		else:
 			print("No circle")
 
+	"""
+		用于检查访问self.__head的code是否正确，装饰器函数
+		简单加入code目的是防止链表被恶意篡改，并留个接口给开发人员
+	"""
+	def __check_code(func):
+		@functools.wraps(func)
+		def check(self, code):
+			if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+				raise Exception('code is wrong!')
+			result = func(self, code)
+			return result
+
+		return check
+
+	@__check_code
+	def return_head(self, code):
+		return self.__head
+
+	def return_num(self):
+		return self.__num
+
 
 # 两个链表合并
-def merge(list1, list2, list3):
-	data1 = list1.head
-	data2 = list2.head
+def merge(list1, list2):
+	data1 = list1.return_head('aafg9s8hfadf9jne!;fsdfr')
+	data2 = list2.return_head('aafg9s8hfadf9jne!;fsdfr')
+	new_link_list = Linkedlist()
 
 	while not data1 == None and not data2 == None:
 		if data1.data >= data2.data:
-			num = data1
+			num = data1.data
 			data1 = data1.next
-			list3.add_data(num)
+			new_link_list.add_data(num)
 		else:
-			num = data2
+			num = data2.data
 			data2 = data2.next
-			list3.add_data(num)
+			new_link_list.add_data(num)
 
 	if data1 == None:
 		while not data2 == None:
-			num = data2
+			num = data2.data
 			data2 = data2.next
-			list3.add_data(num)
+			new_link_list.add_data(num)
 	else:
 		while not data1 == None:
-			num = data1
+			num = data1.data
 			data1 = data1.next
-			list3.add_data(num)
+			new_link_list.add_data(num)
+
+	return new_link_list

@@ -1,4 +1,7 @@
-class Node():
+import functools
+
+
+class A_Node():
 	# value用来存储该节点与指向节点之间的权值,x，y属性存储该节点的x，y值
 	def __init__(self, element, x_way, y_way):	
 		self.data = element
@@ -36,14 +39,13 @@ class Heap():
 		top_element = self.data[-1][0]
 		del self.data[-1]
 		num -= 1
-		self.heap_up_down(self.data, num)
+		self.__heap_up_down(self.data, num)
 
 		return top_element
 
 	# 从上往下进行堆化
-	def heap_up_down(self, data, num, index=1):
+	def __heap_up_down(self, data, num, index=1):
 		while (2*index) <= num:
-
 			# 两个子节点都存在
 			if (2*index+1) <= num:
 				if data[2*index][1] <= data[index][1]:
@@ -75,59 +77,60 @@ class Heap():
 # 邻接表
 class Adjacency_list():
 	"""
-		mapping用来记录及节点的值与节点序数的对应关系
-		data中用节点序数来表示指向关系
-		node_mapping用来存储节点与节点序数的对应关系
+		__mapping用来记录节点的值与节点序数的对应关系
+		__data中用节点序数来表示指向关系
+		__node_mapping用来存储节点与节点序数的对应关系
 	"""
 	def __init__(self):
-		self.data = {}
-		self.node_mapping = []
-		self.mapping = []
+		self.__data = {}
+		self.__node_mapping = []
+		self.__mapping = []
 
 	def add_data(self, start, start_x, start_y, end, end_x, end_y, weight):
 		start, end = str(start), str(end)
-		if start not in self.mapping:
-			new_node = Node(start, start_x, start_y)
-			self.node_mapping.append(new_node)
-			self.mapping.append(start)
-			start_num = len(self.mapping) - 1
+		if start not in self.__mapping:
+			new_node = A_Node(start, start_x, start_y)
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(start)
+			start_num = len(self.__mapping) - 1
 		else:
 			# 如果起始节点已经存在，则不更新起始节点的坐标值，结束节点同理
-			start_num = self.mapping.index(start)
+			start_num = self.__mapping.index(start)
 
-		if end not in self.mapping:
-			new_node = Node(end, end_x, end_y)
-			self.node_mapping.append(new_node)
-			self.mapping.append(end)
-			end_num = len(self.mapping) - 1
+		if end not in self.__mapping:
+			new_node = A_Node(end, end_x, end_y)
+			self.__node_mapping.append(new_node)
+			self.__mapping.append(end)
+			end_num = len(self.__mapping) - 1
 		else:
-			end_num = self.mapping.index(end)
+			end_num = self.__mapping.index(end)
 
-		if not self.data.get(start_num, False):
+		if not self.__data.get(start_num, False):
 			new_list = [end_num]
-			self.data[start_num] = new_list
-			self.node_mapping[start_num].value.append(weight)
+			self.__data[start_num] = new_list
+			self.__node_mapping[start_num].value.append(weight)
 		else:
 			# 如果起始节点与结束节点已经有对应关系了，那么就更新他们两个的之间的权值
-			if end_num in self.data[start_num]:
-				pointer = self.data[start_num].index(end_num)
-				self.node_mapping[start_num].value[pointer] = weight
+			if end_num in self.__data[start_num]:
+				pointer = self.__data[start_num].index(end_num)
+				self.__node_mapping[start_num].value[pointer] = weight
 			else:
-				self.data[start_num].append(end_num)
-				self.node_mapping[start_num].value.append(weight)
+				self.__data[start_num].append(end_num)
+				self.__node_mapping[start_num].value.append(weight)
+
 	# A#算法
 	def a(self, start, end):
 		# 计算曼哈顿距离
 		def manhattan(start_num, end_num):
 			start_x, start_y = \
-				self.node_mapping[start_num].x, self.node_mapping[start_num].y
-			end_x , end_y = self.node_mapping[end_num].x, self.node_mapping[end_num].y
+				self.__node_mapping[start_num].x, self.__node_mapping[start_num].y
+			end_x , end_y = self.__node_mapping[end_num].x, self.__node_mapping[end_num].y
 			manhattan_dist = abs(start_x-end_x) + abs(start_y-end_y)
 
 			return manhattan_dist
 
 		start,end = str(start), str(end)
-		if start not in self.mapping or end not in self.mapping:
+		if start not in self.__mapping or end not in self.__mapping:
 			print("No target data in map")
 		else:
 			"""
@@ -139,11 +142,11 @@ class Adjacency_list():
 					inqueue数组是为了避免将一个顶点多次添加到优先级队列中
 					level_queue为优先级队列
 			"""
-			start_num, end_num = self.mapping.index(start), self.mapping.index(end)
-			vertexes = [None] * len(self.mapping)
-			judge = [None] * len(self.mapping)
-			predecessor = [-1] * len(self.mapping)
-			inqueue = [False] * len(self.mapping)
+			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
+			vertexes = [None] * len(self.__mapping)
+			judge = [None] * len(self.__mapping)
+			predecessor = [-1] * len(self.__mapping)
+			inqueue = [False] * len(self.__mapping)
 			level_queue = Heap()
 			find = False
 
@@ -157,9 +160,9 @@ class Adjacency_list():
 				# 取出一个judge值最短的节点
 				minvertex = level_queue.get_top_element()
 
-				if self.data.get(minvertex,False):
+				if self.__data.get(minvertex,False):
 					# 遍历minvertex的出度节点
-					for num, i in enumerate(self.data.get(minvertex)):
+					for num, i in enumerate(self.__data.get(minvertex)):
 						"""
 							judge数组记录的是f(i)，而f(i)=g(i)+h(i)，
 							h(i)即曼哈顿距离，一个节点的曼哈顿距离是不变的
@@ -168,12 +171,12 @@ class Adjacency_list():
 							或者出度节点的g(i)值为None，则对出度节点的g(i)值进行更新
 						"""
 						if vertexes[i] == None or \
-							(vertexes[minvertex] + self.node_mapping[minvertex].value[num])\
+							(vertexes[minvertex] + self.__node_mapping[minvertex].value[num])\
 								< vertexes[i]:
 
 							# 同时更新judge数组，即f(i)值,以及前驱节点
 							vertexes[i] = \
-								vertexes[minvertex] + self.node_mapping[minvertex].value[num]
+								vertexes[minvertex] + self.__node_mapping[minvertex].value[num]
 							judge[i] = vertexes[i] + manhattan(i, end_num)
 							predecessor[i] = minvertex
 
@@ -190,11 +193,33 @@ class Adjacency_list():
 			# 找到路径，则遍历predecess数组输出
 			if find:
 				pointer = predecessor[end_num]
-				result = [self.mapping[end_num]]
+				result = [self.__mapping[end_num]]
 				while pointer != -1:
-					result.insert(0, self.mapping[pointer])
+					result.insert(0, self.__mapping[pointer])
 					pointer = predecessor[pointer]
 
 				print(result)
 			else:
 				print("No way from start to end")
+
+	"""
+		用于检查访问类基本信息的code是否正确，装饰器函数
+		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+	"""
+	def __check_code(func):
+		@functools.wraps(func)
+		def check(self, code):
+			if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+				raise Exception('code is wrong!')
+			result = func(self, code)
+			return result
+
+		return check
+
+	@__check_code
+	def return_data(self, code):
+		return self.__data
+
+	@__check_code
+	def return_mapping(self, code):
+		return self.__mapping, self.__node_mapping

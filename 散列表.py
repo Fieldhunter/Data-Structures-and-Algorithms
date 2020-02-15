@@ -1,8 +1,11 @@
+import functools
+
+
 """
 	该散列表存储的是字符串格式数据，装载因子设置为0.2~0.8，利用链表法解决散列冲突
 	散列函数为计算字符串上每个位置的Unicode码之和，之后求平均值并和散列表大小取余
 """
-class Node():
+class link_Node():
 	def __init__(self, num):
 		self.data = num
 		self.next = None
@@ -24,122 +27,144 @@ class Hash_table():
 		expansion_pos代表扩容时原散列表遍历到的位置，目的是方便删除和查找操作
 	"""
 	def __init__(self, size=10):
-		self.min_size = size
-		self.size = size
-		self.num = 0
-		self.expansion = False
-		self.expansion_pos = 0
-		self.new_table = None
-		self.stowage = self.num / self.size
-		self.data = []
+		self.__min_size = size
+		self.__size = size
+		self.__num = 0
+		self.__expansion = False
+		self.__expansion_pos = 0
+		self.__new_table = None
+		self.__stowage = self.__num / self.__size
+		self.__data = []
 		for _ in range(size):
-			self.data.append(None)
+			self.__data.append(None)
 
-	def hash_function(self, data):
+	# 用于检查输入数据是否合法，装饰器函数
+	def __check_data_format(func):
+		@functools.wraps(func)
+		def check(self, data):
+			if type(data) != type("1"):
+				data = str(data)
+			func(self, data)
+
+		return check
+
+	"""
+		用于检查访问self.__data或self.__new_table的code是否正确，装饰器函数
+		简单加入code目的是防止hash table被恶意篡改，并留个接口给开发人员
+	"""
+	def __check_code(func):
+		@functools.wraps(func)
+		def check(self, code):
+			if code != 'adsf;{h3096j34ka`fd>&/edgb^45:6':
+				raise Exception('code is wrong!')
+			result = func(self, code)
+			return result
+
+		return check
+
+	def __hash_function(self, data):
 		num = 0
 		sumer = 0
 		for i in data:
 			num += 1
 			sumer += ord(i)
 		sumer //= num
-		sumer %= self.size
+		sumer %= self.__size
 
 		return sumer
 
-	def old_data_move(self):
+	def __old_data_move(self):
 		# 将老数据加入到新散列表,一次性最多搬3个
 		for _ in range(3):
-			while self.expansion_pos != len(self.data) and\
-				  self.data[self.expansion_pos] == None:
-				self.expansion_pos += 1
+			while self.__expansion_pos != len(self.__data) and\
+				  self.__data[self.__expansion_pos] == None:
+				self.__expansion_pos += 1
 
 			# 判断是否原散列表数据已经搬移完，如果已经搬移完了，就把新的散列表更新到原散列表	
-			if self.expansion_pos == len(self.data):
-				self.expansion = False
-				self.size = self.new_table.size
-				self.num = self.new_table.num
-				self.stowage = self.new_table.stowage
-				self.data = self.new_table.data
-				self.new_table = None
-				self.expansion_pos = 0
+			if self.__expansion_pos == len(self.__data):
+				self.__expansion = False
+				self.__size = self.__new_table.__size
+				self.__num = self.__new_table.__num
+				self.__stowage = self.__new_table.__stowage
+				self.__data = self.__new_table.__data
+				self.__new_table = None
+				self.__expansion_pos = 0
 				break
 			else:
 				# 对原散列表链表处理
-				old_data = self.data[self.expansion_pos].head
-				self.data[self.expansion_pos].head = \
-						self.data[self.expansion_pos].head.next
-				self.data[self.expansion_pos].num -= 1
-				if self.data[self.expansion_pos].head == None:
-					self.data[self.expansion_pos] = None
+				old_data = self.__data[self.__expansion_pos].head
+				self.__data[self.__expansion_pos].head = \
+						self.__data[self.__expansion_pos].head.next
+				self.__data[self.__expansion_pos].num -= 1
+				if self.__data[self.__expansion_pos].head == None:
+					self.__data[self.__expansion_pos] = None
 
-				old_hash_value = self.new_table.hash_function(old_data.data)
-				if self.new_table.data[old_hash_value] == None:
+				old_hash_value = self.__new_table.__hash_function(old_data.data)
+				if self.__new_table.__data[old_hash_value] == None:
 					link_list = Linked_list()
-					self.new_table.data[old_hash_value] = link_list
+					self.__new_table.__data[old_hash_value] = link_list
 				else:
-					link_list = self.new_table.data[old_hash_value]
+					link_list = self.__new_table.__data[old_hash_value]
 
 				old_data.next = link_list.head
 				link_list.head = old_data
 				link_list.num += 1
-				self.num -= 1
-				self.new_table.num += 1
-				self.new_table.stowage = self.new_table.num / self.new_table.size
+				self.__num -= 1
+				self.__new_table.__num += 1
+				self.__new_table.__stowage = self.__new_table.__num / self.__new_table.__size
 
+	@__check_data_format
 	def add_data(self, data):
-		if type(data) != type("1"):
-			data = str(data)
-		new_node = Node(data)
+		new_node = link_Node(data)
 
-		if self.expansion == False:
-			hash_value = self.hash_function(data)
-			if self.data[hash_value] == None:
+		if self.__expansion == False:
+			hash_value = self.__hash_function(data)
+			if self.__data[hash_value] == None:
 				link_list = Linked_list()
-				self.data[hash_value] = link_list
+				self.__data[hash_value] = link_list
 			else:
-				link_list = self.data[hash_value]
+				link_list = self.__data[hash_value]
 
 			new_node.next = link_list.head
 			link_list.head = new_node
 			link_list.num += 1
-			self.num += 1
-			self.stowage = self.num / self.size
+			self.__num += 1
+			self.__stowage = self.__num / self.__size
 
 			# 动态扩容
-			if self.stowage > 0.8:
-				self.expansion = True
-				new_hash_table = Hash_table(self.size*2)
-				self.new_table = new_hash_table
-				self.old_data_move()
+			if self.__stowage > 0.8:
+				self.__expansion = True
+				new_hash_table = Hash_table(self.__size*2)
+				self.__new_table = new_hash_table
+				self.__old_data_move()
 		# 扩容中
 		else:
 			# 先将新数据加入
-			hash_value = self.new_table.hash_function(data)
-			if self.new_table.data[hash_value] == None:
+			hash_value = self.__new_table.__hash_function(data)
+			if self.__new_table.__data[hash_value] == None:
 				link_list = Linked_list()
-				self.new_table.data[hash_value] = link_list
+				self.__new_table.__data[hash_value] = link_list
 			else:
-				link_list = self.new_table.data[hash_value]
+				link_list = self.__new_table.__data[hash_value]
 
 			new_node.next = link_list.head
 			link_list.head = new_node
 			link_list.num += 1
-			self.new_table.num += 1
-			self.new_table.stowage = self.new_table.num / self.new_table.size
+			self.__new_table.__num += 1
+			self.__new_table.__stowage = self.__new_table.__num / self.__new_table.__size
 			
-			self.old_data_move()
+			self.__old_data_move()
 
+	@__check_data_format
 	def del_data(self, data):
-		if type(data) != type("1"):
-			data = str(data)
-		hash_value = self.hash_function(data)
+		hash_value = self.__hash_function(data)
 		find = False
 
 		# 先在原散列表中找
-		if self.data[hash_value] == None:
+		if self.__data[hash_value] == None:
 			pass
 		else:
-			pointer = self.data[hash_value].head
+			pointer = self.__data[hash_value].head
 			while pointer != None:
 				if pointer.data == data:
 					find = True
@@ -153,21 +178,21 @@ class Hash_table():
 			try:
 				prev_pointer.next = pointer.next
 			except:
-				self.data[hash_value].head = pointer.next
+				self.__data[hash_value].head = pointer.next
 
-			self.data[hash_value].num -= 1
-			if self.data[hash_value].num == 0:
-				self.data[hash_value] = None
-			self.num -= 1
-			self.stowage = self.num / self.size
+			self.__data[hash_value].num -= 1
+			if self.__data[hash_value].num == 0:
+				self.__data[hash_value] = None
+			self.__num -= 1
+			self.__stowage = self.__num / self.__size
 
 		# 判断是否正在扩容
-		elif self.expansion == True:
-			hash_value = self.new_table.hash_function(data)
-			if self.new_table.data[hash_value] == None:
+		elif self.__expansion == True:
+			hash_value = self.__new_table.__hash_function(data)
+			if self.__new_table.__data[hash_value] == None:
 				pass
 			else:
-				pointer = self.new_table.data[hash_value].head
+				pointer = self.__new_table.__data[hash_value].head
 				while pointer != None:
 					if pointer.data == data:
 						find = True
@@ -181,53 +206,51 @@ class Hash_table():
 				try:
 					prev_pointer.next = pointer.next
 				except:
-					self.new_table.data[hash_value].head = pointer.next
+					self.__new_table.__data[hash_value].head = pointer.next
 
-				self.new_table.data[hash_value].num -= 1
-				if self.new_table.data[hash_value].num == 0:
-					self.new_table.data[hash_value] = None
-				self.new_table.num -= 1
-				self.new_table.stowage = self.new_table.num / self.new_table.size
+				self.__new_table.__data[hash_value].num -= 1
+				if self.__new_table.__data[hash_value].num == 0:
+					self.__new_table.__data[hash_value] = None
+				self.__new_table.__num -= 1
+				self.__new_table.__stowage = self.__new_table.__num / self.__new_table.__size
 			else:
 				print("No data in two Hash_table")
 		else:
 			print("No data in Hash_table")
 
 		# 如果删除成功并处于扩容状态，那么进行数据搬移操作
-		if find and self.expansion == True:
-			self.old_data_move()
+		if find and self.__expansion == True:
+			self.__old_data_move()
 
 		# 动态缩容
-		if self.stowage < 0.2 and \
-		   self.size > self.min_size and self.expansion == False:
+		if self.__stowage < 0.2 and \
+		   self.__size > self.__min_size and self.__expansion == False:
 
-			new_table = Hash_table(self.size//2)
-			while len(self.data) > 0:
-				if self.data[0] == None or self.data[0].head == None:
-					del self.data[0]
+			new_table = Hash_table(self.__size//2)
+			while len(self.__data) > 0:
+				if self.__data[0] == None or self.__data[0].head == None:
+					del self.__data[0]
 					continue
 				else:
-					pointer = self.data[0].head
+					pointer = self.__data[0].head
 					while pointer != None:
 						new_table.add_data(pointer.data)
 						pointer = pointer.next
-						self.data[0].head = pointer
+						self.__data[0].head = pointer
 
-			self.data = new_table.data
-			self.size = new_table.size
-			self.stowage = self.num / self.size
+			self.__data = new_table.__data
+			self.__size = new_table.__size
+			self.__stowage = self.__num / self.__size
 
-
+	@__check_data_format
 	def find_data(self, data):
-		if type(data) != type("1"):
-			data = str(data)
-		hash_value = self.hash_function(data)
+		hash_value = self.__hash_function(data)
 		find = False
 
-		if self.data[hash_value] == None:
+		if self.__data[hash_value] == None:
 			pass
 		else:
-			pointer = self.data[hash_value].head
+			pointer = self.__data[hash_value].head
 			while pointer != None:
 				if pointer.data == data:
 					find = True
@@ -238,12 +261,12 @@ class Hash_table():
 
 		if find:
 			print("Find data in Hash_table")
-		elif self.expansion == True:
-			hash_value = self.new_table.hash_function(data)
-			if self.new_table.data[hash_value] == None:
+		elif self.__expansion == True:
+			hash_value = self.__new_table.__hash_function(data)
+			if self.__new_table.__data[hash_value] == None:
 				pass
 			else:
-				pointer = self.new_table.data[hash_value].head
+				pointer = self.__new_table.__data[hash_value].head
 				while pointer != None:
 					if pointer.data == data:
 						find = True
@@ -258,3 +281,15 @@ class Hash_table():
 				print("No data in need")
 		else:
 			print("No data in need")
+
+	def return_basic_information(self):
+		return self.__min_size, self.__size, self.__num, \
+			self.__expansion, self.__expansion_pos, self.__stowage
+
+	@__check_code
+	def return_hash_data(self, code):
+		return self.__data
+
+	@__check_code
+	def return_hash_expansion_table(self, code):
+		return self.__new_table
