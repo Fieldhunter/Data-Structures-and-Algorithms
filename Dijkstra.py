@@ -2,21 +2,27 @@ import functools
 
 
 class Dijkstra_Node():
-	# value用来存储该节点与指向节点之间的权值
+	"""
+		Self.value is used to store the weight 
+		  between the node and the pointing node.
+	"""
 	def __init__(self, element):
 		self.data = element
 		self.value = []
 
 
-# 实现一个小顶堆,用于后续的dijkstra的优先级队列
+# Implement a small top heap for priority queue of Dijkstra
 class Heap():
 	def __init__(self):
 		self.data = [None]
 
 	"""
-		小顶堆存储的是一个元组，元组有两个值，第一个是节点在邻接表中对应的下标
-		第二个是该节点在dijkstra算法中与起始节点的距离，即后面vertexes数组中该节点下标的值
-		小顶堆以第二个值进行堆化
+		The small top heap stores a tuple with two values.
+		The first is the corresponding subscript of the node in the adjacency list.
+		The second is the distance between the node and the starting node
+		  in Dijkstra, that is, the value of the node's subscript in the
+		  following vertex array.
+		The small top heap is heaped up with the second value.
 	"""
 	def add_data(self, element):
 		self.data.append(element)
@@ -33,7 +39,10 @@ class Heap():
 		num = len(self.data) - 1
 		self.data[num], self.data[1] = self.data[1], self.data[num]
 
-		# 取得堆顶元素时，只返回节点在邻接表中对应的下标
+		"""
+			When getting the heap top element, only the corresponding
+			  subscript of the node in the adjacency list is returned.
+		"""
 		top_element = self.data[-1][0]
 		del self.data[-1]
 		num -= 1
@@ -41,11 +50,11 @@ class Heap():
 
 		return top_element
 
-	# 从上往下进行堆化
+	# Heap up from top to bottom
 	def __heap_up_down(self, data, num, index=1):
 		while (2*index) <= num:
 
-			# 两个子节点都存在
+			# Both child nodes exist
 			if (2*index+1) <= num:
 				if data[2*index][1] <= data[index][1]:
 					if data[2*index+1][1] < data[index][1]:
@@ -64,7 +73,7 @@ class Heap():
 				else:
 					break
 
-			# 只存在左节点
+			# only exist left child node
 			else:
 				if data[2*index][1] <= data[index][1]:
 					data[index], data[2*index] = data[2*index], data[index]
@@ -73,12 +82,13 @@ class Heap():
 					break
 
 
-# 邻接表
 class Adjacency_list():
 	"""
-		__mapping用来记录及节点的值与节点序数的对应关系
-		__data中用节点序数来表示指向关系
-		__node_mapping用来存储节点与节点序数的对应关系
+		Self.__mapping is used to record the corresponding relationship
+		  between node value and node ordinal number.
+		In self.__data,using node ordinal number express pointing relationship.
+		Self.__node_mapping is used to store the corresponding relationship
+		  between node and node ordinal number.
 	"""
 	def __init__(self):
 		self.__data = {}
@@ -107,7 +117,11 @@ class Adjacency_list():
 			self.__data[start_num] = new_list
 			self.__node_mapping[start_num].value.append(weight)
 		else:
-			# 如果起始节点与结束节点已经有对应关系了，那么就更新他们两个的之间的权值
+			"""
+				If there is already a corresponding relationship between
+				  the start node and the end node, the weights between them
+				  will be updated.
+			"""
 			if end_num in self.__data[start_num]:
 				pointer = self.__data[start_num].index(end_num)
 				self.__node_mapping[start_num].value[pointer] = weight
@@ -115,7 +129,7 @@ class Adjacency_list():
 				self.__data[start_num].append(end_num)
 				self.__node_mapping[start_num].value.append(weight)
 
-	# Dijkstra算法
+	# Dijkstra algorithm
 	def dijkstra(self, start, end):
 		start,end = str(start),str(end)
 
@@ -123,11 +137,14 @@ class Adjacency_list():
 			print("No target data in map")
 		else:
 			"""
-				初始化部分:
-					vertexes数组用来存储某个下标节点与起始节点的距离，记作dist，None表示无穷大
-					predecessor数组用来存储每个节点的前驱节点，用于输出路径
-					inqueue数组是为了避免将一个顶点多次添加到优先级队列中
-					level_queue为优先级队列
+				Initialization part:
+					Vertex array is used to store the distance between a subscript node and
+					  the starting node. It is recorded as dist, and None represents infinity.
+					Predicessor array is used to store the predecessor nodes of each node and
+					  output the path.
+					Inqueue array is used to avoid adding a vertex to the priority queue
+					  multiple times.
+					Level_queue is the priority queue.
 			"""
 			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
 			vertexes = [None] * len(self.__mapping)
@@ -136,41 +153,48 @@ class Adjacency_list():
 			level_queue = Heap()
 			find = False
 
-			# 对起始节点先进行处理，放入优先级队列中
+			# Process the starting node first and put it into the priority queue.
 			vertexes[start_num] = 0
 			level_queue.add_data((start_num, vertexes[start_num]))
 			inqueue[start_num] = True
 
 			while len(level_queue.data) > 1:
-				# 取出一个与起始节点距离最短的节点
+				# Take out a node with the shortest distance from the starting node.
 				minvertex = level_queue.get_top_element()
 
-				# 如果结束节点出队列，说明找到了最短路径，则退出循环
+				"""
+					If the end node exits the queue, then the shortest path is found,
+					  and the loop exits.
+				"""
 				if minvertex == end_num:
 					find = True
 					break
 
 				if self.__data.get(minvertex, False):
-					# 遍历minvertex的出度节点
+					# Traversing the output node of minvertex
 					for num, i in enumerate(self.__data.get(minvertex)):
 						if vertexes[i] == None or vertexes[minvertex] + \
 							self.__node_mapping[minvertex].value[num] < vertexes[i]:
 
 							"""
-								如果minVertex的dist值加上两节点之间的权重小于该出度节点的dist值
-								或者出度节点的dist值为None，则对出度节点的dist值进行更新
-								同时前驱节点进行更新
+								If the dist value of minvertex plus the weight between two nodes
+								  is less than the dist value of the outgoing node or the dist value
+								  of the outgoing node is None, the dist value of the outgoing node
+								  is updated, and the predecessor node is updated at the same time.
 							"""
 							vertexes[i] = vertexes[minvertex] + \
 								self.__node_mapping[minvertex].value[num]
 							predecessor[i] = minvertex
 
-							# 判断该出度节点是否之前已经加入到优先级队列中，如果没有，则加入
+							"""
+								Determine whether the outgoing node has previously been added to
+							  	  the priority queue. If not, add it.
+							"""
 							if inqueue[i] == False:
 								level_queue.add_data((i, vertexes[i]))
 								inqueue[i] = True
 
-			# 找到路径，则遍历predecess数组输出
+			# If the path is found, traverse the predecess array output.
 			if find:
 				pointer = predecessor[end_num]
 				result = [self.__mapping[end_num]]
@@ -184,8 +208,9 @@ class Adjacency_list():
 				print("No way from start to end")
 
 	"""
-		用于检查访问类基本信息的code是否正确，装饰器函数
-		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the class information,Decorator function.
+		The purpose of simply adding code is to prevent Adjacency list from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

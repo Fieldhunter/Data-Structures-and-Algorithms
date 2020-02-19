@@ -2,7 +2,10 @@ import functools
 
 
 class Trie_Node():
-	# Trie树中存储的字符串种类只包含26个英文小写字母
+	"""
+		The string types stored in the Trie contain
+		  only 26 English lowercase letters.
+	"""
 	def __init__(self, string):
 		self.data = string
 		self.next = [None] * 26
@@ -43,8 +46,9 @@ class Trie():
 			print("No target data")
 
 	"""
-		用于检查访问self.__head的code是否正确，装饰器函数
-		简单加入code目的是防止Trie树被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the self.__head, Decorator function.
+		The purpose of simply adding code is to prevent Trie from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

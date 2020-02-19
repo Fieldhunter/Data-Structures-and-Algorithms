@@ -1,4 +1,4 @@
-# 实现一个大顶堆
+# implement a large top heap
 class Heap():
 	def __init__(self):
 		self.__data = [None]
@@ -28,11 +28,11 @@ class Heap():
 		return self.__data[1]
 
 
-# 从上往下进行堆化
+# heap up from top to bottom
 def heap_up_down(data, num, index=1):
 	while (2*index) <= num:
 
-		# 两个子节点都存在
+		# both child nodes exist
 		if (2*index+1) <= num:
 			if data[2*index] > data[index]:
 				if data[2*index+1] > data[index]:
@@ -51,7 +51,7 @@ def heap_up_down(data, num, index=1):
 			else:
 				break
 
-		# 只存在左节点
+		# only left child node exist
 		else:
 			if data[2*index] > data[index]:
 				data[index], data[2*index] = data[2*index], data[index]
@@ -60,18 +60,17 @@ def heap_up_down(data, num, index=1):
 				break
 
 
-# 堆排序
 def heap_sort(data):
 	data.insert(0, None)
 	num = len(data) - 1
 	pointer = num // 2
 
-	# 建堆
+	# build heap
 	while pointer >= 1:
 		heap_up_down(data, num, pointer)
 		pointer -= 1
 
-	# 排序
+	# sort
 	index = num
 	for _ in range(num-1):
 		data[1], data[index] = data[index], data[1]

@@ -68,7 +68,7 @@ def RK(main, pattern):
 
 
 def BM(main, pattern):
-	# 查找最后一个小于给定值的元素
+	# Find the last element less than the target.
 	def binary_search(data_list, target):
 		num = len(data_list)
 		low = 0
@@ -89,7 +89,6 @@ def BM(main, pattern):
 		else:
 			return -1
 
-	# 坏字符原则	
 	def bad_character_rule(
 			character_pos,
 			main,
@@ -107,7 +106,6 @@ def BM(main, pattern):
 
 		return bad_character_move
 
-	# 好后缀原则
 	def good_suffix_rule(
 			main,
 			pattern,
@@ -137,7 +135,10 @@ def BM(main, pattern):
 		main, pattern = pattern, main
 		main_length, pattern_length = pattern_length, main_length
 
-	# 将模式串中每个字符出现的位置存储起来，以此来大大提高坏字符的查找效率
+	"""
+		The location of each character in the pattern string is stored to
+		  greatly improve the search efficiency of bad characters.
+	"""
 	character_pos = {}
 	index = 0
 	for i in pattern:
@@ -149,9 +150,15 @@ def BM(main, pattern):
 		index += 1
 
 	"""
-		suffix数组用来存储在模式串中跟该长度（即下标）的后缀子串相同的子串的起始下标值
-		prefix数组用来记录该长度（即下标）模式串的后缀子串是否能匹配模式串的前缀子串
-		suffix和prefix数组都是以下标为1的位置开始，下标为0的位置不计,下标即意味着子串中字符的个数
+		Suffix array is used to store the starting subscript value of
+		  the same substring in the pattern string as the suffix substring
+		  of the length (i.e. subscript).
+		Prefix array is used to record whether the suffix substring of
+		  the length (i.e. subscript) pattern string can match the prefix substring
+		  of the pattern string.
+		Both the suffix and prefix arrays start at the position marked 1,
+		  and the position marked 0 is not counted. The subscript means the number
+		  of characters in the substring.
 	"""
 	suffix = [-1] * (pattern_length+1)
 	prefix = [False] * (pattern_length+1)
@@ -175,7 +182,10 @@ def BM(main, pattern):
 				main_pointer -= 1
 				pattern_pointer -= 1
 			else:
-				# 同时获取到坏字符原则下的移动步数和好后缀原则下的移动步数
+				"""
+					get the number of moving steps from the bad character principle
+					  and the good suffix principle at the same time.
+				"""
 				bad_character_move = bad_character_rule(character_pos,
 														main,
 														pattern,
@@ -194,7 +204,10 @@ def BM(main, pattern):
 			find = True
 			break
 		else:
-			# 坏字符原则和好后缀原则哪个移动步数多选哪个
+			"""
+				Choose multiple moving steps among bad character principle
+				  and good suffix principle.
+			"""
 			if bad_character_move > good_suffix_move:
 				index += bad_character_move
 			else:
@@ -213,7 +226,12 @@ def KMP(main, pattern):
 		main, pattern = pattern, main
 		main_length, pattern_length = pattern_length, main_length
 
-	# next_list数组用来存储模式串中所有长度的前缀子串的最长可匹配前缀子串结尾字符的下标,数组下标表示前缀子串的长度
+	"""
+		The next_list array is used to store the subscript of the longest
+		  matching prefix substring end character of all length prefix substrings
+		  in the pattern string.
+		The array subscript represents the length of the prefix substring.
+	"""
 	next_list = [-1] * pattern_length
 	k = -1
 	for i in range(1, pattern_length):
@@ -233,7 +251,7 @@ def KMP(main, pattern):
 				main_pointer += 1
 				pattern_pointer += 1
 			else:
-				# 好前缀规则
+				# good prefix rule
 				good_prefix = pattern[ : pattern_pointer]
 				len_good_prefix = len(good_prefix) - 1
 				if len_good_prefix == -1:

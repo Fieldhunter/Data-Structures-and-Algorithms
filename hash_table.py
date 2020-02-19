@@ -2,8 +2,9 @@ import functools
 
 
 """
-	该散列表存储的是字符串格式数据，装载因子设置为0.2~0.8，利用链表法解决散列冲突
-	散列函数为计算字符串上每个位置的Unicode码之和，之后求平均值并和散列表大小取余
+	This hash table stores data in string format.
+	The stowage factor is set to 0.2-0.8.
+	Using chain list method to solve hash conflict.
 """
 class link_Node():
 	def __init__(self, num):
@@ -19,12 +20,22 @@ class Linked_list():
 
 class Hash_table():
 	"""
-		size是散列表的大小，默认为10，num是已有的数据个数
-		min_size不扩容时不更新，用于动态缩容时散列表最小大小
-		stowage是装载因子,expansion代表散列表是否正在扩容,new_table存储新散列表
-		扩容策略为当要扩容时，单单申请，不转移数据，当要增加一个数据时，
-		将新数据和原散列表中的几个数据加入到新散列表
-		expansion_pos代表扩容时原散列表遍历到的位置，目的是方便删除和查找操作
+		Self.__size is the size of the hash table, which is 10 by default.
+		Self.__num is the number of existing data.
+		Self.__min_size do not update when not expanding. It is used to
+		  dynamically shrink the minimum size of the hash table.
+		Self.__stowage is the load factor.
+		Self.__expansion indicates whether the hash table is expanding.
+		  (True or False)
+		Self.__new_table stores the new extended hash table.
+		Self.__expansion_pos represents the position traversed by the original
+		  hash table during expanding the hash table, so as to facilitate
+		  deletion and search operations.
+
+		The expansion strategy is that when we need to expand the hash table,
+		  we can only apply for it without moving the data. When we want to
+		  add a data, we can add the new data and move several data from the
+		  original hash table to the new hash table.
 	"""
 	def __init__(self, size=10):
 		self.__min_size = size
@@ -38,7 +49,7 @@ class Hash_table():
 		for _ in range(size):
 			self.__data.append(None)
 
-	# 用于检查输入数据是否合法，装饰器函数
+	# Used to check whether the input data is legal, decorator function
 	def __check_data_format(func):
 		@functools.wraps(func)
 		def check(self, data):
@@ -49,8 +60,9 @@ class Hash_table():
 		return check
 
 	"""
-		用于检查访问self.__data或self.__new_table的code是否正确，装饰器函数
-		简单加入code目的是防止hash table被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the hash table data,Decorator function.
+		The purpose of simply adding code is to prevent hash table from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)
@@ -62,6 +74,10 @@ class Hash_table():
 
 		return check
 
+	"""
+		The hash function computes the sum of the Unicode codes at each position
+	  	  on the string, then the average and the remainder with the hash size.
+	"""
 	def __hash_function(self, data):
 		num = 0
 		sumer = 0
@@ -73,14 +89,20 @@ class Hash_table():
 
 		return sumer
 
+	"""
+		Add the data from the old hash table to the new hash table,
+		  and move up to three at a time.
+	"""
 	def __old_data_move(self):
-		# 将老数据加入到新散列表,一次性最多搬3个
 		for _ in range(3):
 			while self.__expansion_pos != len(self.__data) and\
 				  self.__data[self.__expansion_pos] == None:
 				self.__expansion_pos += 1
 
-			# 判断是否原散列表数据已经搬移完，如果已经搬移完了，就把新的散列表更新到原散列表	
+			"""
+				Determine whether the all original hash table data has been moved.
+				  If it is True, update the new hash table to the self.__data.
+			"""
 			if self.__expansion_pos == len(self.__data):
 				self.__expansion = False
 				self.__size = self.__new_table.__size
@@ -91,7 +113,7 @@ class Hash_table():
 				self.__expansion_pos = 0
 				break
 			else:
-				# 对原散列表链表处理
+				# process the original Hash table's chain list
 				old_data = self.__data[self.__expansion_pos].head
 				self.__data[self.__expansion_pos].head = \
 						self.__data[self.__expansion_pos].head.next
@@ -131,15 +153,15 @@ class Hash_table():
 			self.__num += 1
 			self.__stowage = self.__num / self.__size
 
-			# 动态扩容
+			# dynamic expansion
 			if self.__stowage > 0.8:
 				self.__expansion = True
 				new_hash_table = Hash_table(self.__size*2)
 				self.__new_table = new_hash_table
 				self.__old_data_move()
-		# 扩容中
+		# during expansion
 		else:
-			# 先将新数据加入
+			# add new data first
 			hash_value = self.__new_table.__hash_function(data)
 			if self.__new_table.__data[hash_value] == None:
 				link_list = Linked_list()
@@ -160,7 +182,7 @@ class Hash_table():
 		hash_value = self.__hash_function(data)
 		find = False
 
-		# 先在原散列表中找
+		# finding in the original hash table first
 		if self.__data[hash_value] == None:
 			pass
 		else:
@@ -186,7 +208,7 @@ class Hash_table():
 			self.__num -= 1
 			self.__stowage = self.__num / self.__size
 
-		# 判断是否正在扩容
+		# determine whether hash table is in expansion.
 		elif self.__expansion == True:
 			hash_value = self.__new_table.__hash_function(data)
 			if self.__new_table.__data[hash_value] == None:
@@ -218,11 +240,14 @@ class Hash_table():
 		else:
 			print("No data in Hash_table")
 
-		# 如果删除成功并处于扩容状态，那么进行数据搬移操作
+		"""
+			If the deletion is successful and in the expansion state,
+			  then the function of __old_data_move will be implement.
+		"""
 		if find and self.__expansion == True:
 			self.__old_data_move()
 
-		# 动态缩容
+		# dynamic shrinkage
 		if self.__stowage < 0.2 and \
 		   self.__size > self.__min_size and self.__expansion == False:
 

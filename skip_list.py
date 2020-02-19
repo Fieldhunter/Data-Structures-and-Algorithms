@@ -3,8 +3,11 @@ import functools
 
 class link_Node():
 	"""
-		next列表表示该节点指向的节点，不同位置的节点表示索引中不同层数指向的位置
-		0号位是链表本身，1号位是第一层索引，以此类推，后面跳表实现阶段会初始化和更新
+		The next list represents the list of nodes the node points to.
+		Different positions in the list represent the nodes pointed to by
+		  different index layers of the node in the skip list. The 0-bit is the
+		  chain table itself, the 1-bit is the first level index, and so on.
+		Later implementation phase will initialize and update the skip list.
 	"""
 	def __init__(self, data):
 		self.data = data
@@ -19,28 +22,28 @@ class Skip_list():
 		self.__num = 0
 
 	def __index(self):
-		# 计算索引的层数
+		# calculate the number of levels of the index
 		num = self.__num
 		max_level = 0
 		while num > 3:
 			max_level += 1
 			num //= 3
 
-		# 为每个节点的next列表初始化
+		# initialize the next list for each node
 		pointer = self.__head
 		while pointer:
 
-			# 索引层数增加
+			# increase index layer's number
 			if len(pointer.next) - 1 < max_level:
 				for _ in range(max_level - (len(pointer.next)-1)):
 					pointer.next.append(None)
 
-			# 索引层数减少
+			# reduce index layer's number
 			elif len(pointer.next) - 1 > max_level:	
 				del pointer.next[-(len(pointer.next)-1-max_level) : ]
 			pointer = pointer.next[0]
 
-		# 更新构建索引的节点的next列表
+		# update the next list of nodes that build the index
 		for i in range(max_level):
 			pointer = self.__head
 			while pointer:
@@ -49,11 +52,11 @@ class Skip_list():
 					pointer.next[i+1] = next_pointer
 					pointer = next_pointer
 				except:
-					# 处理这一层索引最后一个节点
+					# process the last node of this index layer
 					pointer.next[i+1] = None
 					break
 
-	# 加入数据，使链表保持由小到大的顺序
+	# add data, and keep the list in order from small to large
 	def add_data(self, element):
 		new_data = link_Node(element)
 		self.__num += 1
@@ -74,7 +77,7 @@ class Skip_list():
 			new_data.next.append(pointer.next[0])
 			pointer.next[0] = new_data
 
-		# 每加入三个数据更新一遍索引
+		# update index every three data added
 		if self.__add_num == 3:
 			self.__index()
 			self.__add_num = 0
@@ -96,7 +99,10 @@ class Skip_list():
 
 				while pointer != None:
 					if pointer.data == num:
-						# 更新前指针，保证两指针的前后关系
+						"""
+							update the prev_pointer, and ensure the anterior and
+							  posterior relationship between the two pointers
+						"""
 						while prev_pointer.next[i-1] != pointer:	
 							prev_pointer = prev_pointer.next[i-1]
 
@@ -115,7 +121,10 @@ class Skip_list():
 			else:
 				print("No data in Skip_list")
 
-			# 每删除三个数据更新一遍索引，删除头结点不算
+			"""
+				The index is updated every three data deleted.
+				Deleting the header node does not count.
+			"""
 			if self.__del_num == 3:
 				self.__index()
 				self.__del_num = 0
@@ -144,8 +153,10 @@ class Skip_list():
 				print("No this data in Skip_list")
 
 	"""
-		用于检查访问类基本信息的code是否正确，装饰器函数
-		简单加入code目的是防止跳表被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the skip list information,
+		  Decorator function.
+		The purpose of simply adding code is to prevent skip list from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

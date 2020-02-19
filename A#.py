@@ -2,7 +2,11 @@ import functools
 
 
 class A_Node():
-	# value用来存储该节点与指向节点之间的权值,x，y属性存储该节点的x，y值
+	"""
+		Self.value is used to store the weight 
+		  between the node and the pointing node.
+		Self.x and self.y stores the X, Y values of the node.
+	"""
 	def __init__(self, element, x_way, y_way):	
 		self.data = element
 		self.value = []
@@ -10,15 +14,19 @@ class A_Node():
 		self.y = y_way
 
 
-# 实现一个小顶堆,小顶堆用于后续的A*算法的优先级队列
+"""
+	Implement a small top heap,
+	  which is used for priority queue of subsequent A#.
+"""
 class Heap():
 	def __init__(self):
 		self.data = [None]
 
 	"""
-		小顶堆存储的是一个元组，元组有两个值，第一个是节点在邻接表中对应的下标
-		第二个是该节点在A*算法中judge数组中的值
-		小顶堆以第二个值进行堆化
+		The small top heap stores a tuple with two values.
+		The first is the corresponding subscript of the node in the adjacency list.
+		The second is the value of the node in the judge array in the A#.
+		The small top heap is heaped up with the second value.
 	"""
 	def add_data(self, element):
 		self.data.append(element)
@@ -35,7 +43,10 @@ class Heap():
 		num = len(self.data) - 1
 		self.data[num], self.data[1] = self.data[1], self.data[num]
 
-		# 取得堆顶元素时，只返回节点在邻接表中对应的下标
+		"""
+			When getting the heap top element, only the corresponding
+			  subscript of the node in the adjacency list is returned.
+		"""
 		top_element = self.data[-1][0]
 		del self.data[-1]
 		num -= 1
@@ -43,10 +54,10 @@ class Heap():
 
 		return top_element
 
-	# 从上往下进行堆化
+	# Heap up from top to bottom
 	def __heap_up_down(self, data, num, index=1):
 		while (2*index) <= num:
-			# 两个子节点都存在
+			# Both child nodes exist
 			if (2*index+1) <= num:
 				if data[2*index][1] <= data[index][1]:
 					if data[2*index+1][1] < data[index][1]:
@@ -65,7 +76,7 @@ class Heap():
 				else:
 					break
 
-			# 只存在左节点
+			# only exist left child node
 			else:
 				if data[2*index][1] <= data[index][1]:
 					data[index], data[2*index] = data[2*index], data[index]
@@ -74,12 +85,13 @@ class Heap():
 					break
 
 
-# 邻接表
 class Adjacency_list():
 	"""
-		__mapping用来记录节点的值与节点序数的对应关系
-		__data中用节点序数来表示指向关系
-		__node_mapping用来存储节点与节点序数的对应关系
+		Self.__mapping is used to record the corresponding relationship
+		  between node value and node ordinal number.
+		In self.__data,using node ordinal number express pointing relationship.
+		Self.__node_mapping is used to store the corresponding relationship
+		  between node and node ordinal number.
 	"""
 	def __init__(self):
 		self.__data = {}
@@ -94,7 +106,11 @@ class Adjacency_list():
 			self.__mapping.append(start)
 			start_num = len(self.__mapping) - 1
 		else:
-			# 如果起始节点已经存在，则不更新起始节点的坐标值，结束节点同理
+			"""
+				If the start node already exists,the coordinate
+				  value of the start node will not be updated.
+				The same is true for the end node.
+			"""
 			start_num = self.__mapping.index(start)
 
 		if end not in self.__mapping:
@@ -110,7 +126,11 @@ class Adjacency_list():
 			self.__data[start_num] = new_list
 			self.__node_mapping[start_num].value.append(weight)
 		else:
-			# 如果起始节点与结束节点已经有对应关系了，那么就更新他们两个的之间的权值
+			"""
+				If there is already a corresponding relationship between
+				  the start node and the end node, the weights between them
+				  will be updated.
+			"""
 			if end_num in self.__data[start_num]:
 				pointer = self.__data[start_num].index(end_num)
 				self.__node_mapping[start_num].value[pointer] = weight
@@ -118,13 +138,14 @@ class Adjacency_list():
 				self.__data[start_num].append(end_num)
 				self.__node_mapping[start_num].value.append(weight)
 
-	# A#算法
+	# A# algorithm
 	def a(self, start, end):
-		# 计算曼哈顿距离
+		# calculate manhattan distance
 		def manhattan(start_num, end_num):
 			start_x, start_y = \
 				self.__node_mapping[start_num].x, self.__node_mapping[start_num].y
-			end_x , end_y = self.__node_mapping[end_num].x, self.__node_mapping[end_num].y
+			end_x , end_y = self.__node_mapping[end_num].x, 
+							self.__node_mapping[end_num].y
 			manhattan_dist = abs(start_x-end_x) + abs(start_y-end_y)
 
 			return manhattan_dist
@@ -134,13 +155,20 @@ class Adjacency_list():
 			print("No target data in map")
 		else:
 			"""
-				初始化部分:
-					vertexes数组用来存储某个下标节点与起始节点的距离，记作g(i)，None表示无穷大
-					judge数组用来存储某个下标节点与结束节点的曼哈顿距离（记作h(i)）
-						与对应下标的vertexes数组中的值之和，记作f(i)，None表示无穷大
-					predecessor数组用来存储每个节点的前驱节点，用于输出路径
-					inqueue数组是为了避免将一个顶点多次添加到优先级队列中
-					level_queue为优先级队列
+				Initialization part:
+					Vertex array is used to store the distance betweena subscript node and
+					  the starting node.It is recorded as g(i), and None represents infinity.
+
+					Judge array is used to store the sum of the Manhattan distance(h(i))
+					  between a subscript node and the end node and the values in the
+					  corresponding subscript vertexes array. It is recorded as f(i). 
+					  None represents infinity.
+
+					Predecessor array is used to store the predecessor nodes of each node
+					  and output the path.
+					Inqueue array is used to avoid adding a vertex to the priority queue
+					  multiple times.
+					Level_queue is the priority queue.
 			"""
 			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
 			vertexes = [None] * len(self.__mapping)
@@ -150,47 +178,54 @@ class Adjacency_list():
 			level_queue = Heap()
 			find = False
 
-			# 对起始节点先进行处理，放入优先级队列中
+			# Process the starting node first and put it into the priority queue
 			vertexes[start_num] = 0
 			judge[start_num] = manhattan(start_num, end_num)
 			level_queue.add_data((start_num, judge[start_num]))
 			inqueue[start_num] = True
 
 			while len(level_queue.data) > 1 and find == False:
-				# 取出一个judge值最短的节点
+				# Take a node with the shortest judge value
 				minvertex = level_queue.get_top_element()
 
 				if self.__data.get(minvertex,False):
-					# 遍历minvertex的出度节点
+					# Traversing the output node of minvertex
 					for num, i in enumerate(self.__data.get(minvertex)):
 						"""
-							judge数组记录的是f(i)，而f(i)=g(i)+h(i)，
-							h(i)即曼哈顿距离，一个节点的曼哈顿距离是不变的
-							所以A*算法中f(i)的比较也就是g(i)的比较，此处判断就是这个道理
-							如果minVertex的g(i)值加上两节点之间的权重小于该出度节点的g(i)值
-							或者出度节点的g(i)值为None，则对出度节点的g(i)值进行更新
+							Judge array records f(i),f(i)=g(i)+h(i),and h(i) is manhattan distance.
+							The Manhattan distance of a node is constant, so the comparison of f(i)
+							  in A# is also the comparison of g(i).That's how it's judged here.
+							If the g(i) value of minvertex plus the weight between two nodes is
+							  less than the g(i) value of the outgoing node or the g(i) value of the
+							  outgoing node is none, the g(i) value of the outgoing node is updated.
 						"""
 						if vertexes[i] == None or \
 							(vertexes[minvertex] + self.__node_mapping[minvertex].value[num])\
 								< vertexes[i]:
 
-							# 同时更新judge数组，即f(i)值,以及前驱节点
+							"""
+								At the same time, update the judge array, the f(i) value,
+								  and the predecessor node.
+							"""
 							vertexes[i] = \
 								vertexes[minvertex] + self.__node_mapping[minvertex].value[num]
 							judge[i] = vertexes[i] + manhattan(i, end_num)
 							predecessor[i] = minvertex
 
-							# 判断该出度节点是否之前已经加入到优先级队列中，如果没有，则加入
+							"""
+								Judge whether the outgoing node has previously been added to
+								  the priority queue. If not, add it.
+							"""
 							if inqueue[i] == False:
 								level_queue.add_data((i, judge[i]))
 								inqueue[i] = True
 
-							# 如果遍历到结束节点，则退出循环
+							# Exit the loop if traversing to the end node.
 							if i == end_num:
 								find = True
 								break
 
-			# 找到路径，则遍历predecess数组输出
+			# If the path is found, traverse the predecess array output.
 			if find:
 				pointer = predecessor[end_num]
 				result = [self.__mapping[end_num]]
@@ -203,8 +238,9 @@ class Adjacency_list():
 				print("No way from start to end")
 
 	"""
-		用于检查访问类基本信息的code是否正确，装饰器函数
-		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the class information,Decorator function.
+		The purpose of simply adding code is to prevent Adjacency list from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

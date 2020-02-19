@@ -2,8 +2,9 @@ import functools
 
 
 """
-	该二叉搜索树中，左子树中的每个节点的值，都要小于等于这个节点的值
-	而右子树节点的值都大于这个节点的值
+	In the binary search tree, the value of each node in the left subtree is
+	  less than or equal to the value of this node, and the value of the right
+	  subtree node is greater than the value of this node.
 """
 class tree_Node():
 	def __init__(self, num):
@@ -14,15 +15,16 @@ class tree_Node():
 
 class Binary_search_tree():
 	"""
-		__left_num和__right_num用来记录根节点左右两树节点个数情况
-		用于适当进行左右旋(借鉴红黑树)，以尽量提高各操作效率
+		Self__left and self.__right num are used to record the number of left and
+		  right subtree nodes of the root node.
+		It is used for proper left and right rotation (refer to red black tree) to
+		  improve the operation efficiency as much as possible.
 	"""
 	def __init__(self):
 		self.__head = None
 		self.__left_num = 0
 		self.__right_num = 0
 
-	# 左旋
 	def __left_rotate(self):
 		while self.__left_num < self.__right_num:
 			focus_node = self.__head
@@ -40,7 +42,6 @@ class Binary_search_tree():
 				self.__left_num += 2
 				self.__right_num -= 2
 
-	# 右旋
 	def __right_rotate(self):
 		while self.__right_num < self.__left_num:
 			focus_node = self.__head
@@ -83,7 +84,7 @@ class Binary_search_tree():
 			else:
 				prev_pointer.left = new_node
 
-		# 两子树个数相差5个时候，进行左右旋
+		# When the number of two subtrees differs by 5, rotate left and right
 		if self.__left_num - self.__right_num == 5:
 			self.__right_rotate()
 		elif self.__right_num - self.__left_num == 5:
@@ -95,7 +96,10 @@ class Binary_search_tree():
 		pointer = self.__head
 		find = False
 
-		# 方便减少根节点左右子树节点个数
+		"""
+			convenient to reduce the number of left and
+			  right subtree nodes of root node
+		"""
 		if pointer != None:
 			if pointer.data < element:
 				direction = "right"
@@ -125,21 +129,25 @@ class Binary_search_tree():
 			elif pointer.left != None:
 				self.__left_num -= 1
 
-			# 因为删除第二步中有重复使用第二步的操作，所以将第二步单独拎出来
+			"""
+				Because the second step of deletion has the operation of
+				  reusing the second step, so the second step is carried 
+				  out separately.
+			"""
 			self.__del_step(prev_pointer, pointer, pos)
 
 			print("Successful to del data")
 		else:
 			print("No data in need")
 
-		# 两子树个数相差5个时候，进行左右旋
+		# When the number of two subtrees differs by 5, rotate left and right.
 		if self.__left_num - self.__right_num == 5:
 			self.__right_rotate()
 		elif self.__right_num - self.__left_num == 5:
 			self.__left_rotate()
 
 	def __del_step(self, prev_pointer, pointer, pos):
-		# 要删除的节点没有子节点的情况
+		# when the node to be deleted has no child nodes
 		if pointer.left == None and pointer.right == None:
 			if pointer == self.__head:
 				self.__head == None
@@ -149,7 +157,7 @@ class Binary_search_tree():
 				else:
 					prev_pointer.left = None
 
-		# 要删除的节点有两个子节点的情况
+		# when the node to be deleted has two child nodes
 		elif pointer.left != None and pointer.right != None:
 			min_node_prev = pointer
 			min_node = pointer.right
@@ -177,7 +185,7 @@ class Binary_search_tree():
 				min_node_prev = new_node
 			self.__del_step(min_node_prev, min_node, new_pos)
 
-		# 要删除的节点只有一个子节点的情况
+		# when the node to be deleted has only one child
 		else:
 			if pointer == self.__head:
 				if self.__head.left != None:
@@ -213,7 +221,6 @@ class Binary_search_tree():
 		else:
 			print("No data in need")
 
-	# 中序遍历
 	def inorder_traversal(self, pointer=self.__head):
 		if pointer != None:
 			self.inorder_traversal(pointer.left)
@@ -223,8 +230,9 @@ class Binary_search_tree():
 			print(None)
 
 	"""
-		用于检查访问类基本信息的code是否正确，装饰器函数
-		简单加入code目的是防止二叉查找树被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the tree information,Decorator function.
+		The purpose of simply adding code is to prevent binary search tree from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

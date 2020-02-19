@@ -1,12 +1,13 @@
 import functools
 
 
-# AC自动机建立在Trie树之上
+# AC automata based on Trie
 class AC_Node():
 	"""
-		Trie树中存储的字符串种类只包含26个英文小写字母
-		length记录该字符在字符串中的下标
-		end表示该字符是否为一个模式串的结尾
+		The string types stored in the trie tree contain
+		  only 26 English lowercase letters.
+		Self.length records the subscript of the character in the string.
+		Self.end indicates whether the character is the end of a pattern string.
 	"""
 	def __init__(self, string, pointer=None):
 		self.data = string
@@ -34,7 +35,7 @@ class AC_automata():
 
 		self.__structure()
 
-	# 构建自动机操作
+	# Building AC_automata
 	def __structure(self):
 		queue = [self.__head]
 		while len(queue) != 0:
@@ -77,12 +78,14 @@ class AC_automata():
 			index = fail_pointer
 			while index != self.__head:
 				if index.end == True:
-					print("匹配到的字符串初始下标为{}，长度为{}".format(i-index.length,index.length+1))
+					print("The initial subscript of the matched string:{}，length:{}"\
+						.format(i-index.length,index.length+1))
 				index = index.fail
 
 	"""
-		用于检查访问self.__head的code是否正确，装饰器函数
-		简单加入code目的是防止AC自动机被恶意篡改，并留个接口给开发人员
+		Check if the code used to access self.__head,Decorator function.
+		The purpose of simply adding code is to prevent AC automata from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

@@ -1,7 +1,6 @@
 import random
 
 
-# 冒泡排序
 def bubble_sort(data_list):
 	num = len(data_list)
 	for i in range(num-1):
@@ -16,7 +15,6 @@ def bubble_sort(data_list):
 	print(data_list)
 
 
-# 插入排序
 def insertion_sort(data_list):
 	num = len(data_list)
 	for i in range(num):
@@ -31,7 +29,6 @@ def insertion_sort(data_list):
 	print(data_list)
 
 
-# 选择排序
 def selection_sort(data_list):
 	num = len(data_list)
 	for i in range(num):
@@ -44,7 +41,6 @@ def selection_sort(data_list):
 	print(data_list)
 
 
-# 归并排序
 def merge_sort(data_list):
 	num = len(data_list)
 	if num == 1:
@@ -76,7 +72,6 @@ def merge_sort(data_list):
 		return last_list
 
 
-# 快速排序
 def quick_sort(data_list):
 	num = len(data_list)
 	if num <= 1:
@@ -100,7 +95,7 @@ def quick_sort(data_list):
 		return data_list
 
 
-# 桶排序,此例为对0-1000范围的数进行排序
+# This example is to sort the numbers in the range of 0-1000.
 def bucket_sort(data_list):
 	list_1 = []
 	list_2 = []
@@ -122,7 +117,6 @@ def bucket_sort(data_list):
 	return data_list
 
 
-# 计数排序
 def count_sort(data_list):
 	num = len(data_list)
 	max_num = max(data_list)
@@ -145,7 +139,7 @@ def count_sort(data_list):
 	return last_list
 
 
-#基数排序，此例为排序电话号码
+# This example is sorting phone numbers.
 def radix_sort(data_list, pos=0):
 	if len(data_list) == 1:
 		return data_list

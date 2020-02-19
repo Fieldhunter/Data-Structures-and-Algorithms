@@ -2,7 +2,7 @@ import functools
 
 
 class Link_Node():
-	# 存储的数据为数字
+	# Stored data is digital
 	def __init__(self, data):
 		self.data = data
 		self.next = None
@@ -13,7 +13,11 @@ class Linkedlist():
 		self.__head = None
 		self.__num = 0
 
-	# num是要加入的数字,pos_num代表在哪个数据后面加入,不填默认在头结点
+	"""
+		num is the number to be added.
+		pos_num is which the data is added after.(position ordinal)
+		  It is filled in the header node by default.
+	"""
 	def add_data(self, num, pos_num=None):
 		new_node = Link_Node(num)
 		if self.__head == None or pos_num == None:
@@ -80,7 +84,7 @@ class Linkedlist():
 			print(data_list.data, end=" ")
 			data_list = data_list.next
 
-	# 单链表反转
+	# single linked list inversion
 	def reversal(self):
 		try:
 			data_1 = None
@@ -135,8 +139,9 @@ class Linkedlist():
 			print("No circle")
 
 	"""
-		用于检查访问self.__head的code是否正确，装饰器函数
-		简单加入code目的是防止链表被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the linked list's head,Decorator function.
+		The purpose of simply adding code is to prevent linked list from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)
@@ -156,10 +161,10 @@ class Linkedlist():
 		return self.__num
 
 
-# 两个链表合并
+# merge two linked lists
 def merge(list1, list2):
-	data1 = list1.return_head('aafg9s8hfadf9jne!;fsdfr')
-	data2 = list2.return_head('aafg9s8hfadf9jne!;fsdfr')
+	data1 = list1.return_head('adsf;{h3096j34ka`fd>&/edgb^45:6')
+	data2 = list2.return_head('adsf;{h3096j34ka`fd>&/edgb^45:6')
 	new_link_list = Linkedlist()
 
 	while not data1 == None and not data2 == None:

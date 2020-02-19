@@ -1,9 +1,13 @@
 """
-	布隆过滤器的__data用一个数组存储，目的是可以存储多个扩容后的二进制表
-	__size表示当前二进制表的尺寸大小
-	__num表示当前表中已经改动的二进制个数
-	（无论有没有重复，每添加一个数据__num就增加3，目的是最大限度减少冲突）
-	__stowage是装载因子，最大限度为0.8，大于0.8则增加一个大小为原来一倍的新表到__data中
+	The data of the bloon filter is stored in an array(self.__data) to
+	  store multiple expanded binary tables.
+	Self.__size express the size of the current binary table.
+	Self.__num express the number of changed binaries in the current table.
+	  (No matter whether there are duplicates or not, self.__num add 3
+	  for every data you add, so as to minimize conflicts.)
+	Self.__stowage is the loading factor, with a maximum of 0.8.
+	  If it is greater than 0.8, a new table of double size will be
+	  added to the self.__data.
 """
 class Bloom_Filter():
 	def __init__(self, number):
@@ -12,7 +16,7 @@ class Bloom_Filter():
 		self.__num = 0
 		self.__stowage = self.__num / self.__size
 
-	# ASCll码法
+	# using ASCII method
 	def __hash_function_1(self, data, size):
 		if type(data) != type("1"):
 			data = str(data)
@@ -27,7 +31,10 @@ class Bloom_Filter():
 
 		return sumer
 
-	# 对每一位上的ASCll值整除以本身的位数，累加，再与表的尺寸求余
+	"""
+		Divide the ascll value on each bit by its own number of digits,
+		  accumulate, and then calculate the remainder with the table size.
+	"""
 	def __hash_function_2(self, data, size):
 		if type(data) != type("1"):
 			data = str(data)
@@ -41,7 +48,7 @@ class Bloom_Filter():
 
 		return sumer
 
-	# 平方求余
+	# Square and then Mod
 	def __hash_function_3(self, data, size):
 		if type(data) != type(1):
 			num = 0
@@ -68,11 +75,11 @@ class Bloom_Filter():
 
 		self.__stowage = self.__num / self.__size
 
-		# 是否要增加一个大小2倍的表
+		# Determine whether to increase a table twice the size
 		if self.__stowage > 0.8:
 			self.__data.append(bytearray(self.__size*2))
 
-			# 将num，size，stowage更新为新表的数值
+			# Update num, size, stowage to the value of the new table
 			self.__num = 0
 			self.__size *= 2
 			self.__stowage = 0

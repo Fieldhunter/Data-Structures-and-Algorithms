@@ -2,19 +2,19 @@ import functools
 
 
 class Node():
-	# in_degree表示入度数，out_degree表示出度数
 	def __init__(self,element):
 		self.data = element
 		self.in_degree = 0
 		self.out_degree = 0
 
 
-# 邻接表
 class Adjacency_list():
 	"""
-		__node_mapping用来记录节点与节点序数的对应关系
-		__mapping用来记录节点数据与节点序数的对应关系
-		__data中用节点序数来表示指向关系
+		Self.__node_mapping is used to record the correspondence between
+		  node and node ordinal number.
+		Self.__mapping is used to record the correspondence between node data
+		  and node ordinal number.
+		In self.__data, using node ordinal number express pointing relationship.
 	"""
 	def __init__(self):
 		self.__data = {}
@@ -52,7 +52,11 @@ class Adjacency_list():
 				self.__node_mapping[end_num].in_degree += 1
 
 	def kahn(self):
-		# in_list记录每个节点的入度数,queue是一个队列，用来存储待处理的节点下标,result用来存储结果顺序
+		"""
+			The in_list array records the input degree's numbers of each node.
+			The queue array is a queue that stores the node subscripts to be processed.
+			The result array is used to store the result order.
+		"""
 		in_list = []
 		for i in self.__node_mapping:
 			in_list.append(i.in_degree)
@@ -60,7 +64,7 @@ class Adjacency_list():
 		result = []
 
 		try:
-			# 找到入度为0的初始节点下标
+			# find the starting node subscript with 0 in_degree
 			pointer = in_list.index(0)
 			quene.append(pointer)
 			in_list[pointer] = None
@@ -75,23 +79,28 @@ class Adjacency_list():
 				for i in self.__data.get(pointer):
 					in_list[i] -= 1
 
-					# 入度为0的节点设置为None
+					# set None to the node which has 0 in_degree
 					if in_list[i] == 0:
 						quene.append(i)
 						in_list[i] = None
 
-		# 如果最终in_list里不全是None，说明有环
+		"""
+			In the end, if not all of them are None in in_list,
+			  it means there are ring in the diagram.
+		"""
 		if in_list.count(None) == len(in_list):
 			print(result)
 		else:
 			print("A ring in map")
 
 	def DFS(self):
-		# 循环输出
 		def loop_output(num, result, count):
 			count+=1
 
-			# 如果函数执行次数超过了总的节点数，说明肯定存在环
+			"""
+				If the function executes' numbers more than the total
+				  numbers of nodes, there must be a ring.
+			"""
 			if count > len(self.__mapping):
 				return False
 
@@ -100,7 +109,7 @@ class Adjacency_list():
 					result = loop_output(j, result, count)
 
 			if result != False:
-				# 该节点如果没有输出过，则输出
+				# if this node has not output, then output
 				if check_list[num] != True:
 					check_list[num] = True
 					result.append(self.__mapping[num])
@@ -108,10 +117,11 @@ class Adjacency_list():
 			return result
 
 		"""
-			check_list数组用来判断该下标的节点有没有输出过
-			out_list记录每个节点的出度数
-			result用来存储结果顺序
-			count用来记录循环输出函数的执行次数
+			The check_list array is used to determine whether the subscript node
+			  has been output.
+			The out_list array records the number of out_degree of each node.
+			The result array is used to store the result order.
+			The count is used to record the execution times of the loop output function.
 		"""
 		check_list = [False] * len(self.__mapping)
 		out_list = []
@@ -120,7 +130,7 @@ class Adjacency_list():
 		for i in self.__node_mapping:
 			out_list.append(i.out_degree)
 
-		# 构建逆邻接表
+		# building a reverse adjacency list
 		inverse_adjacency_list = {}
 		for i in self.__data:
 			if self.__data.get(i, False):
@@ -132,7 +142,10 @@ class Adjacency_list():
 						inverse_adjacency_list[j] = new_list
 
 		try:
-			# 找到出度数初始值为0的节点，即原顺序的末尾
+			"""
+				Find the node with the initial out_degree's value of 0,
+				  that is, the end of the original sequence.
+			"""
 			pointer = out_list.index(0)
 			result = loop_output(pointer, result, count)
 			if result == False:
@@ -143,8 +156,9 @@ class Adjacency_list():
 			print("A ring in map")
 
 	"""
-		用于检查访问类基本信息的code是否正确，装饰器函数
-		简单加入code目的是防止邻接表被恶意篡改，并留个接口给开发人员
+		Check if the code used to access the class information,Decorator function.
+		The purpose of simply adding code is to prevent Adjacency list from 
+		  being tampered with maliciously and to provide the API for developers.
 	"""
 	def __check_code(func):
 		@functools.wraps(func)

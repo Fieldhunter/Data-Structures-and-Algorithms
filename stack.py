@@ -2,8 +2,9 @@ import functools
 
 
 """
-	用于检查访问队列信息的code是否正确，装饰器函数
-	简单加入code目的是防止队列被恶意篡改，并留个接口给开发人员
+	Check if the code used to access the stack information,Decorator function.
+	The purpose of simply adding code is to prevent stack from 
+	  being tampered with maliciously and to provide the API for developers.
 """
 def check_code(func):
 	@functools.wraps(func)
@@ -16,7 +17,6 @@ def check_code(func):
 	return check
 
 
-# 顺序栈
 class Sequence_stack():
 	def __init__(self):
 		self.__data_list = []
@@ -42,7 +42,7 @@ class Sequence_stack():
 		return self.__data_list, self.__num
 
 
-# 链式栈
+# linked stack
 class link_Node():
 	def __init__(self, num):
 		self.data = num

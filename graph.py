@@ -1,7 +1,10 @@
 import functools
 
 
-# 用于两种图表示方法加数据的预处理操作，装饰器函数
+"""
+	preprocessing operation for adding data in two graph
+	  representation methods, decorator function
+"""
 def start_end_process(func):
 	@functools.wraps(func)
 	def process(self, start, end):
@@ -22,8 +25,9 @@ def start_end_process(func):
 
 
 """
-	用于检查访问图基本信息的code是否正确，装饰器函数
-	简单加入code目的是防止图的信息被恶意篡改，并留个接口给开发人员
+	Check if the code used to access the graph information,Decorator function.
+	The purpose of simply adding code is to prevent graph from 
+	  being tampered with maliciously and to provide the API for developers.
 """
 def check_code(func):
 	@functools.wraps(func)
@@ -36,9 +40,13 @@ def check_code(func):
 	return check
 
 
-# 基于有向图
+# based on directed graph
 class Adjacency_matrix():
-	# 初始化为一个10*10的矩阵,mapping用来记录节点与节点序数的对应关系
+	"""
+		Initialize to a matrix of 10 * 10
+		Self.__mapping is used to record the correspondence
+		  between nodes and their ordinal numbers.
+	"""
 	def __init__(self):
 		self.__mapping = []
 		self.__size = 10
@@ -54,7 +62,10 @@ class Adjacency_matrix():
 	def add_data(self, start_num, end_num):
 		self.__data[start_num][end_num] = 1
 
-		# 如果节点个数接近矩阵的尺寸，则对矩阵进行扩容
+		"""
+			If the number of nodes is close to the size of the matrix,
+			  the matrix is expanded.
+		"""
 		if self.__size - len(self.__mapping) < 2:
 			for i in self.__data:
 				for _ in range(10):
@@ -71,9 +82,12 @@ class Adjacency_matrix():
 		return self.__data, self.__mapping, self.__size
 
 
-# 邻接表
 class Adjacency_list():
-	# mapping用来记录节点与节点序数的对应关系,data中用节点序数来表示指向关系
+	"""
+		Self.__mapping is used to record the correspondence between
+		  nodes and their ordinal numbers.
+		In self.__data, using node ordinal express pointing relation.
+	"""
 	def __init__(self):
 		self.__data = {}
 		self.__mapping = []
@@ -95,9 +109,10 @@ class Adjacency_list():
 			print("No data in need")
 		else:
 			"""
-				queue为一个队列，用来存储当前遍历到的顶点
-				visited数组用来记录已经被访问的顶点.用来避免顶点被重复访问
-				prev数组用来记录搜素路径
+				The queue array is a queue to store the currently traversed vertices.
+				The visited array is used to record the visited vertices. It is used to
+				  avoid repeated access of vertices.
+				The prev array is used to record search path.
 			"""
 			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
 			queue = [start_num]
@@ -128,7 +143,6 @@ class Adjacency_list():
 				print("No way from start to end")
 
 	def DFS(self, start, end):
-		# 递归查找
 		def recursion_found(pointer, end_num, visited, prev, find):
 			if find == True:
 				return visited, prev, find
@@ -151,7 +165,7 @@ class Adjacency_list():
 		if start not in self.__mapping or end not in self.__mapping:
 			print("No data in need")
 		else:
-			# visited，prev数组作用与BFS相同
+			# visited, prev array has the same function as BFS
 			start_num, end_num = self.__mapping.index(start), self.__mapping.index(end)
 			visited = [False] * len(self.__mapping)
 			prev = [-1] * len(self.__mapping)

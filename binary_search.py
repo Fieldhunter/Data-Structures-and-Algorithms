@@ -20,7 +20,7 @@ def binary_search(data_list, target):
 		print("No data")
 
 
-# 查找第一个值等于给定值的元素
+# Find the element whose first value is equal to the target
 def binary_search_1(data_list, target):
 	num = len(data_list)
 	low = 0
@@ -46,7 +46,7 @@ def binary_search_1(data_list, target):
 		print("No data")
 
 
-# 查找最后一个值等于给定值的元素
+# Find the element whose last value is equal to the target
 def binary_search_2(data_list, target):
 	num = len(data_list)
 	low = 0
@@ -72,7 +72,7 @@ def binary_search_2(data_list, target):
 		print("No data")
 
 
-# 查找第一个大于等于给定值的元素
+# Find the first element greater than or equal to the target
 def binary_search_3(data_list, target):
 	num = len(data_list)
 	low = 0
@@ -95,7 +95,7 @@ def binary_search_3(data_list, target):
 		print("No data")
 
 
-# 查找最后一个小于等于给定值的元素
+# Find the last element less than or equal to the target
 def binary_search_4(data_list, target):
 	num = len(data_list)
 	low = 0
