@@ -1,3 +1,9 @@
+"""
+@version: python3.6
+@author: Fieldhunter
+@contact: 1677532160yuan@gmail.com
+@time: 2020-05-03
+"""
 def binary_search(data_list, target):
 	num = len(data_list)
 	low = 0

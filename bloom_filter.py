@@ -1,4 +1,10 @@
 """
+@version: python3.6
+@author: Fieldhunter
+@contact: 1677532160yuan@gmail.com
+@time: 2020-05-03
+"""
+"""
 	The data of the bloon filter is stored in an array(self.__data) to
 	  store multiple expanded binary tables.
 	Self.__size express the size of the current binary table.

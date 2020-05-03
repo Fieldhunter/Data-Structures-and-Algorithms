@@ -1,3 +1,9 @@
+"""
+@version: python3.6
+@author: Fieldhunter
+@contact: 1677532160yuan@gmail.com
+@time: 2020-05-03
+"""
 def BF(main, pattern):
 	main_length = len(main) - 1
 	pattern_length = len(pattern) - 1
